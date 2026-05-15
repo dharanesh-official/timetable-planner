@@ -25,9 +25,9 @@ export default function DeleteUserButton({ userId, role }: { userId: string, rol
       size="sm" 
       className="text-red-500 hover:text-red-700 hover:bg-red-50"
       onClick={handleDelete}
-      disabled={isDeleting}
+      isLoading={isDeleting}
     >
-      <Trash2 className="w-4 h-4 mr-2" />
+      {!isDeleting && <Trash2 className="w-4 h-4 mr-2" />}
       {isDeleting ? 'Deleting...' : 'Remove'}
     </Button>
   )

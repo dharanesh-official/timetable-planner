@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button'
 export default function FacultyTimetableClient({ role, facultyMembers, workingDays, timeSlots, slots, selectedFacultyId }: any) {
   const router = useRouter()
   const [selectedFaculty, setSelectedFaculty] = useState(selectedFacultyId || '')
+  const [isPrintingPDF, setIsPrintingPDF] = useState(false)
+  const [isPrintingNormal, setIsPrintingNormal] = useState(false)
 
   const handleFacultySelect = (val: string) => {
     setSelectedFaculty(val)
@@ -69,11 +71,29 @@ export default function FacultyTimetableClient({ role, facultyMembers, workingDa
               {role === 'faculty' ? 'My Weekly Schedule' : `${facultyName}'s Schedule`}
             </h2>
             <div className="flex gap-4">
-              <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all rounded-lg" onClick={() => window.print()}>
-                Download PDF
+              <Button 
+                variant="default" 
+                isLoading={isPrintingPDF}
+                disabled={isPrintingNormal}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all rounded-lg" 
+                onClick={() => {
+                  setIsPrintingPDF(true)
+                  setTimeout(() => { window.print(); setIsPrintingPDF(false) }, 800)
+                }}
+              >
+                {isPrintingPDF ? 'Preparing PDF...' : 'Download PDF'}
               </Button>
-              <Button variant="outline" className="border-slate-200 shadow-sm" onClick={() => window.print()}>
-                Print Timetable
+              <Button 
+                variant="outline" 
+                isLoading={isPrintingNormal}
+                disabled={isPrintingPDF}
+                className="border-slate-200 shadow-sm" 
+                onClick={() => {
+                  setIsPrintingNormal(true)
+                  setTimeout(() => { window.print(); setIsPrintingNormal(false) }, 800)
+                }}
+              >
+                {isPrintingNormal ? 'Preparing...' : 'Print Timetable'}
               </Button>
             </div>
           </div>

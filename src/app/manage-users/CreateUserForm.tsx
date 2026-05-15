@@ -72,7 +72,7 @@ export default function CreateUserForm({ currentUserRole }: { currentUserRole: s
           </SelectContent>
         </Select>
       </div>
-      <Button type="submit" disabled={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all text-sm rounded-lg">
+      <Button type="submit" isLoading={loading} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all text-sm rounded-lg">
         {loading ? 'Creating...' : 'Create'}
       </Button>
     </form>

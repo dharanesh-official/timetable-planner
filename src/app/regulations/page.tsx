@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/SubmitButton'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { revalidatePath } from 'next/cache'
@@ -48,7 +49,7 @@ export default async function RegulationsPage() {
         <h2 className="text-xl font-bold text-slate-900 mb-6">Add Regulation</h2>
         <form action={createRegulation} className="flex gap-4">
           <Input name="name" placeholder="e.g., Regulation 2024" required className="max-w-md bg-white border-slate-200 focus-visible:ring-blue-600" />
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-lg">Add</Button>
+          <SubmitButton defaultText="Add" loadingText="Adding..." className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-lg" />
         </form>
       </div>
 
@@ -69,7 +70,7 @@ export default async function RegulationsPage() {
                 <TableCell className="text-right">
                   <form action={deleteRegulation}>
                     <input type="hidden" name="id" value={reg.id} />
-                    <Button variant="destructive" size="sm" type="submit" className="shadow-sm">Delete</Button>
+                    <SubmitButton defaultText="Delete" loadingText="Deleting..." variant="destructive" size="sm" className="shadow-sm" />
                   </form>
                 </TableCell>
               </TableRow>

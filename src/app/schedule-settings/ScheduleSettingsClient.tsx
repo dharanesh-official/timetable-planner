@@ -72,7 +72,7 @@ export default function ScheduleSettingsClient({ initialWorkingDays, initialTime
           <h1 className="text-3xl font-bold text-slate-900">Schedule Settings</h1>
           <p className="text-slate-600 mt-1">Configure working days, periods, breaks, and lunch timings.</p>
         </div>
-        <Button onClick={handleSave} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all rounded-lg font-medium">
+        <Button onClick={handleSave} isLoading={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-all rounded-lg font-medium">
           {isSaving ? 'Saving...' : 'Save Configuration'}
         </Button>
       </div>

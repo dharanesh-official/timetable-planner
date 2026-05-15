@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/SubmitButton'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { revalidatePath } from 'next/cache'
@@ -48,7 +49,7 @@ export default async function LabsPage() {
             <label className="block text-sm font-semibold text-slate-700 mb-2">Lab Name</label>
             <Input name="name" placeholder="e.g., Computer Lab 1" required className="border-slate-200 focus-visible:ring-blue-600 bg-slate-50/50" />
           </div>
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all rounded-lg">Add Lab</Button>
+          <SubmitButton defaultText="Add Lab" loadingText="Adding..." className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all rounded-lg" />
         </form>
       </div>
 
@@ -67,7 +68,7 @@ export default async function LabsPage() {
                 <TableCell className="text-right">
                   <form action={deleteLab}>
                     <input type="hidden" name="id" value={lab.id} />
-                    <Button variant="ghost" size="sm" type="submit" className="text-red-600 hover:text-red-700 hover:bg-red-50">Delete</Button>
+                    <SubmitButton defaultText="Delete" loadingText="Deleting..." variant="ghost" size="sm" className="text-red-600 hover:text-red-700 hover:bg-red-50" />
                   </form>
                 </TableCell>
               </TableRow>

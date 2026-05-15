@@ -226,10 +226,10 @@ export default function AssignmentsClient({
           <div className="p-6 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <h2 className="text-xl font-bold text-slate-900">Step 2: Assign Faculty & Hours</h2>
             <div className="flex flex-wrap gap-4 w-full sm:w-auto">
-              <Button onClick={handleSaveAll} disabled={isSaving} variant="outline" className="border-slate-200 shadow-sm flex-1 sm:flex-none">
+              <Button onClick={handleSaveAll} isLoading={isSaving} variant="outline" className="border-slate-200 shadow-sm flex-1 sm:flex-none">
                 {isSaving ? 'Saving...' : 'Save Draft'}
               </Button>
-              <Button onClick={handleGenerateTimetable} disabled={isGenerating || isSaving} className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all rounded-lg flex-1 sm:flex-none">
+              <Button onClick={handleGenerateTimetable} isLoading={isGenerating} disabled={isSaving} className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all rounded-lg flex-1 sm:flex-none">
                 {isGenerating ? 'Generating...' : 'Generate Timetable'}
               </Button>
             </div>

@@ -7,6 +7,16 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useFormStatus } from "react-dom"
+
+function SubmitButton() {
+  const { pending } = useFormStatus()
+  return (
+    <Button formAction={login} type="submit" isLoading={pending} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md shadow-blue-600/20 transition-all text-base rounded-xl mt-6">
+      {pending ? 'Signing In...' : 'Sign In'}
+    </Button>
+  )
+}
 
 const Typewriter = ({ text, speed = 40, loop = false }: { text: string, speed?: number, loop?: boolean }) => {
   const [displayed, setDisplayed] = useState('')
@@ -139,9 +149,7 @@ export default function LoginPage() {
                     className="h-12 border-slate-200 focus-visible:ring-blue-600 focus-visible:border-blue-600 bg-slate-50/50 rounded-xl text-base transition-all" 
                   />
                 </div>
-                <Button formAction={login} type="submit" className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md shadow-blue-600/20 transition-all text-base rounded-xl mt-6">
-                  Sign In
-                </Button>
+                <SubmitButton />
               </div>
             </form>
           </CardContent>

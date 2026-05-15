@@ -27,6 +27,9 @@ export default function SubjectsClient({
   const [name, setName] = useState('')
   const [credits, setCredits] = useState('')
   const [subjectType, setSubjectType] = useState('Theory')
+  
+  const [isAdding, setIsAdding] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
   const filteredBatches = batches.filter((b: any) => b.regulation_id === selectedReg)
   const filteredSemesters = semesters.filter((s: any) => s.batch_id === selectedBatch)
@@ -35,6 +38,7 @@ export default function SubjectsClient({
   const handleAddSubject = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedSemester || !code || !name || !credits) return
+    setIsAdding(true)
 
     const { data, error } = await supabase
       .from('subjects')
@@ -57,14 +61,17 @@ export default function SubjectsClient({
       setCredits('')
       setSubjectType('Theory')
     }
+    setIsAdding(false)
   }
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this subject?')) return
+    setDeletingId(id)
     const { error } = await supabase.from('subjects').delete().eq('id', id)
     if (!error) {
       setSubjects(subjects.filter((s: any) => s.id !== id))
     }
+    setDeletingId(null)
   }
 
   // Get names for breadcrumbs
@@ -232,7 +239,7 @@ export default function SubjectsClient({
                   <label className="block text-sm font-medium mb-1">Credits</label>
                   <Input value={credits} onChange={e => setCredits(e.target.value)} type="number" step="0.1" placeholder="3.0" required className="bg-white border-slate-200 focus-visible:ring-blue-600 shadow-sm rounded-lg" />
                 </div>
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-lg w-24">Add</Button>
+                <Button type="submit" isLoading={isAdding} className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-lg w-24">Add</Button>
               </form>
             </div>
 
@@ -262,8 +269,8 @@ export default function SubjectsClient({
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(sub.id)}>
-                        Delete
+                      <Button variant="ghost" isLoading={deletingId === sub.id} disabled={deletingId === sub.id} className="text-red-500 hover:text-red-700 hover:bg-red-50" onClick={() => handleDelete(sub.id)}>
+                        {deletingId === sub.id ? 'Deleting...' : 'Delete'}
                       </Button>
                     </TableCell>
                   </TableRow>

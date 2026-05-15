@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { SubmitButton } from '@/components/SubmitButton'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
@@ -75,7 +76,7 @@ export default async function SemestersPage() {
               <option value="Even Semester">Even Semester</option>
             </select>
           </div>
-          <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-lg">Add</Button>
+          <SubmitButton defaultText="Add" loadingText="Adding..." className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm rounded-lg" />
         </form>
       </div>
 
@@ -98,7 +99,7 @@ export default async function SemestersPage() {
                 <TableCell className="text-right">
                   <form action={deleteSemester}>
                     <input type="hidden" name="id" value={sem.id} />
-                    <Button variant="destructive" size="sm" type="submit" className="shadow-sm">Delete</Button>
+                    <SubmitButton defaultText="Delete" loadingText="Deleting..." variant="destructive" size="sm" className="shadow-sm" />
                   </form>
                 </TableCell>
               </TableRow>

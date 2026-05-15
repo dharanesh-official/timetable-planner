@@ -10,6 +10,8 @@ export default function TimetableClient({ regulations, batches, semesters, initi
   const [selectedReg, setSelectedReg] = useState('')
   const [selectedBatch, setSelectedBatch] = useState('')
   const [selectedSemester, setSelectedSemester] = useState(initialSemester || '')
+  const [isPrintingPDF, setIsPrintingPDF] = useState(false)
+  const [isPrintingNormal, setIsPrintingNormal] = useState(false)
 
   const filteredBatches = batches.filter((b: any) => b.regulation_id === selectedReg)
   const filteredSemesters = semesters.filter((s: any) => s.batch_id === selectedBatch)
@@ -100,11 +102,29 @@ export default function TimetableClient({ regulations, batches, semesters, initi
               Weekly Schedule
             </h2>
             <div className="flex gap-4">
-              <Button variant="default" className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all rounded-lg" onClick={() => window.print()}>
-                Download PDF
+              <Button 
+                variant="default" 
+                isLoading={isPrintingPDF}
+                disabled={isPrintingNormal}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-sm transition-all rounded-lg" 
+                onClick={() => {
+                  setIsPrintingPDF(true)
+                  setTimeout(() => { window.print(); setIsPrintingPDF(false) }, 800)
+                }}
+              >
+                {isPrintingPDF ? 'Preparing PDF...' : 'Download PDF'}
               </Button>
-              <Button variant="outline" className="border-slate-200 shadow-sm" onClick={() => window.print()}>
-                Print Timetable
+              <Button 
+                variant="outline" 
+                isLoading={isPrintingNormal}
+                disabled={isPrintingPDF}
+                className="border-slate-200 shadow-sm" 
+                onClick={() => {
+                  setIsPrintingNormal(true)
+                  setTimeout(() => { window.print(); setIsPrintingNormal(false) }, 800)
+                }}
+              >
+                {isPrintingNormal ? 'Preparing...' : 'Print Timetable'}
               </Button>
             </div>
           </div>
