@@ -129,7 +129,7 @@ export async function generateTimetable(semesterId: string) {
           
           if (workingDays.includes(d) && classPeriods.includes(p)) {
              if (semesterGrid[d][p] !== null) {
-                throw new Error(`Scheduling Conflict! Fixed slot Day ${d} Period ${p} for ${assignment.subjects.name} is already taken by another fixed slot.`);
+                throw new Error(`Scheduling Conflict! Fixed slot Day ${d} Period ${p} for ${(assignment.subjects as any).name} is already taken by another fixed slot.`);
              }
              if (facultyOccupied[d][p].has(assignment.faculty_id)) {
                 throw new Error(`Scheduling Conflict! Faculty ${assignment.faculty_id} is already occupied on Day ${d} Period ${p} by global slot.`);
@@ -151,7 +151,7 @@ export async function generateTimetable(semesterId: string) {
 
     // 4. Greedy Allocation
     for (const assignment of sortedAssignments) {
-      const subjectType = assignment.subjects.type
+      const subjectType = (assignment.subjects as any).type
       const continuous = assignment.continuous_hours || 1
       let remainingClasses = assignment.classes_per_week
 
@@ -222,8 +222,8 @@ export async function generateTimetable(semesterId: string) {
         }
 
         if (!placed) {
-          if (subjectType === 'Lab') throw new Error(`Scheduling Conflict! Could not find ${continuous} continuous free periods for Lab: ${assignment.subjects.name}.`)
-          else throw new Error(`Scheduling Conflict! Could not find a free slot for Theory: ${assignment.subjects.name}.`)
+          if (subjectType === 'Lab') throw new Error(`Scheduling Conflict! Could not find ${continuous} continuous free periods for Lab: ${(assignment.subjects as any).name}.`)
+          else throw new Error(`Scheduling Conflict! Could not find a free slot for Theory: ${(assignment.subjects as any).name}.`)
         }
       }
       
@@ -243,7 +243,7 @@ export async function generateTimetable(semesterId: string) {
           }
           if (placed) break
         }
-        if (!placed) throw new Error(`Scheduling Conflict! Could not find a free slot for remaining hours of: ${assignment.subjects.name}.`)
+        if (!placed) throw new Error(`Scheduling Conflict! Could not find a free slot for remaining hours of: ${(assignment.subjects as any).name}.`)
       }
     }
 

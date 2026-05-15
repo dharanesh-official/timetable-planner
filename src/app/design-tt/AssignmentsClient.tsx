@@ -347,9 +347,11 @@ export default function AssignmentsClient({
             <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
               <div>
                 <h3 className="text-xl font-bold text-slate-900">Select Fixed Slots</h3>
-                <p className="text-sm text-slate-500 mt-1">
+                <p className="text-sm font-medium text-slate-500 mt-1">
                   {subjects.find((s: any) => s.id === fixedSlotModal.subjectId)?.name} 
-                  - Faculty: {faculties.find((f: any) => f.id === draftAssignments[fixedSlotModal.subjectId]?.facultyId)?.full_name}
+                  {fixedSlotModal.subjectId && draftAssignments[fixedSlotModal.subjectId]?.facultyId && 
+                    ` • ${faculties.find((f: any) => f.id === draftAssignments[fixedSlotModal.subjectId!].facultyId)?.full_name}`
+                  }
                 </p>
               </div>
               <Button variant="ghost" size="icon" onClick={() => setFixedSlotModal({ isOpen: false, subjectId: null })} className="text-slate-400 hover:text-slate-600">
@@ -389,9 +391,9 @@ export default function AssignmentsClient({
                             )
                           }
 
-                          const isSelected = (draftAssignments[fixedSlotModal.subjectId]?.fixedSlots || []).some(
+                          const isSelected = fixedSlotModal.subjectId ? (draftAssignments[fixedSlotModal.subjectId]?.fixedSlots || []).some(
                             (s: any) => s.day_of_week === day.day_of_week && s.period_number === period.period_number
-                          )
+                          ) : false
                           
                           return (
                             <td 
