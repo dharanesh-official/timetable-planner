@@ -88,6 +88,52 @@ export async function generateTimetable(semesterId: string) {
       return isSlotOdd === isTargetOdd
     }) || []
 
+    // Fetch all faculty profiles to validate weekly hour limits
+    const { data: facultyProfiles, error: facultyErr } = await supabase
+      .from('profiles')
+      .select('id, full_name, weekly_hour_limit')
+      .eq('role', 'faculty')
+
+    if (facultyErr) throw new Error('Failed to fetch faculty details: ' + facultyErr.message)
+
+    // Build a lookup map of faculty details: id -> { name, limit }
+    const facultyMap = new Map<string, { name: string; limit: number }>()
+    facultyProfiles?.forEach(f => {
+      facultyMap.set(f.id, {
+        name: f.full_name || 'Unknown Faculty',
+        limit: f.weekly_hour_limit ?? 20 // Default to 20 if not set
+      })
+    })
+
+    // Calculate and check weekly hour limits for each faculty member
+    const facultyRequiredHours: Record<string, number> = {}
+
+    // 1. Add hours from the current semester's subject mappings
+    assignments.forEach((assignment: any) => {
+      const fId = assignment.faculty_id
+      if (fId) {
+        facultyRequiredHours[fId] = (facultyRequiredHours[fId] || 0) + (assignment.classes_per_week || 0)
+      }
+    })
+
+    // 2. Add hours from other semesters in the same cycle (already scheduled in globalSlots)
+    globalSlots.forEach((slot: any) => {
+      const fId = slot.faculty_id
+      if (fId) {
+        facultyRequiredHours[fId] = (facultyRequiredHours[fId] || 0) + 1
+      }
+    })
+
+    // 3. Enforce the limit
+    for (const [fId, requiredHours] of Object.entries(facultyRequiredHours)) {
+      const faculty = facultyMap.get(fId)
+      if (faculty) {
+        if (requiredHours > faculty.limit) {
+          throw new Error(`Timetable generation failed: Faculty '${faculty.name}' has a weekly hour limit of ${faculty.limit} hours, but the generated timetable requires ${requiredHours} hours. Please adjust the timetable constraints or increase the faculty's hour limit.`)
+        }
+      }
+    }
+
     // Build conflict maps
     const facultyOccupied: Record<number, Record<number, Set<string>>> = {}
     const labOccupied: Record<number, Record<number, Set<string>>> = {}

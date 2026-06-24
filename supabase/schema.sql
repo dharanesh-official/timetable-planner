@@ -10,6 +10,7 @@ CREATE TABLE profiles (
   full_name TEXT,
   role user_role NOT NULL DEFAULT 'faculty',
   department TEXT,
+  weekly_hour_limit INTEGER DEFAULT 20,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

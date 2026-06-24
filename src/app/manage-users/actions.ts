@@ -49,12 +49,16 @@ export async function createUser(formData: FormData) {
   }
 
   if (newUser.user) {
+    const weeklyHourLimitVal = formData.get('weekly_hour_limit')
+    const weekly_hour_limit = weeklyHourLimitVal ? parseInt(weeklyHourLimitVal as string, 10) : 20
+
     // Insert profile manually
     const { error: profileError } = await adminAuthClient.from('profiles').insert({
       id: newUser.user.id,
       email: newUser.user.email,
       full_name,
-      role: targetRole
+      role: targetRole,
+      weekly_hour_limit: targetRole === 'faculty' ? weekly_hour_limit : null
     })
 
     if (profileError) {

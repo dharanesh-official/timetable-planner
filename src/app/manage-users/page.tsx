@@ -59,6 +59,7 @@ export default async function ManageUsersPage() {
               <TableHead className="font-semibold text-slate-700">Name</TableHead>
               <TableHead className="font-semibold text-slate-700">Email</TableHead>
               <TableHead className="font-semibold text-slate-700">Role</TableHead>
+              <TableHead className="font-semibold text-slate-700">Weekly Limit</TableHead>
               <TableHead className="font-semibold text-slate-700">Created At</TableHead>
               <TableHead className="text-right font-semibold text-slate-700">Actions</TableHead>
             </TableRow>
@@ -73,6 +74,9 @@ export default async function ManageUsersPage() {
                     {u.role.replace('_', ' ')}
                   </span>
                 </TableCell>
+                <TableCell className="text-slate-600 font-medium">
+                  {u.role === 'faculty' ? `${u.weekly_hour_limit ?? 20} hrs` : '-'}
+                </TableCell>
                 <TableCell className="text-slate-600">{new Date(u.created_at).toLocaleDateString()}</TableCell>
                 <TableCell className="text-right">
                   <DeleteUserButton userId={u.id} role={u.role} />
@@ -81,7 +85,7 @@ export default async function ManageUsersPage() {
             ))}
             {(!users || users.length === 0) && (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-12 text-slate-500 bg-slate-50/30">
+                <TableCell colSpan={6} className="text-center py-12 text-slate-500 bg-slate-50/30">
                   No users found matching your permission scope.
                 </TableCell>
               </TableRow>
