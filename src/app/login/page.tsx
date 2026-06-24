@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { login } from './actions'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
@@ -8,11 +8,12 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useFormStatus } from "react-dom"
+import { useSearchParams } from 'next/navigation'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
   return (
-    <Button formAction={login} type="submit" isLoading={pending} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md shadow-blue-600/20 transition-all text-base rounded-xl mt-6">
+    <Button type="submit" isLoading={pending} className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-md shadow-blue-600/20 transition-all text-base rounded-xl mt-6">
       {pending ? 'Signing In...' : 'Sign In'}
     </Button>
   )
@@ -97,6 +98,59 @@ function WelcomeSection() {
   )
 }
 
+function LoginForm() {
+  const searchParams = useSearchParams()
+  const error = searchParams.get('error')
+
+  return (
+    <form action={login}>
+      <div className="flex flex-col gap-6">
+        {error && (
+          <div className="p-4 bg-red-50/80 border border-red-100 rounded-2xl flex items-start gap-3 animate-in fade-in slide-in-from-top-2 duration-200">
+            <svg className="w-5 h-5 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div className="flex flex-col gap-0.5">
+              <span className="text-sm font-semibold text-red-950">Sign In Failed</span>
+              <span className="text-xs text-red-700 leading-relaxed font-medium">
+                {error === 'fetch failed' 
+                  ? 'Could not connect to the authentication server. Please check your network connection or ensure the database is active.' 
+                  : error}
+              </span>
+            </div>
+          </div>
+        )}
+        <div className="flex flex-col space-y-2">
+          <Label htmlFor="email" className="text-slate-700 font-semibold">Email address</Label>
+          <Input 
+            id="email" 
+            name="email" 
+            type="email" 
+            placeholder="name@example.com" 
+            required 
+            className="h-12 border-slate-200 focus-visible:ring-blue-600 focus-visible:border-blue-600 bg-slate-50/50 rounded-xl text-base transition-all" 
+          />
+        </div>
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="password" className="text-slate-700 font-semibold">Password</Label>
+            <Link href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">Forgot password?</Link>
+          </div>
+          <Input 
+            id="password" 
+            name="password" 
+            type="password" 
+            placeholder="••••••••" 
+            required 
+            className="h-12 border-slate-200 focus-visible:ring-blue-600 focus-visible:border-blue-600 bg-slate-50/50 rounded-xl text-base transition-all" 
+          />
+        </div>
+        <SubmitButton />
+      </div>
+    </form>
+  )
+}
+
 export default function LoginPage() {
   return (
     <div className="min-h-screen w-full flex font-sans">
@@ -122,36 +176,9 @@ export default function LoginPage() {
             <CardDescription className="text-slate-500 text-base">Enter your email and password to access your account.</CardDescription>
           </CardHeader>
           <CardContent className="px-8 lg:px-10 pb-12">
-            <form>
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col space-y-2">
-                  <Label htmlFor="email" className="text-slate-700 font-semibold">Email address</Label>
-                  <Input 
-                    id="email" 
-                    name="email" 
-                    type="email" 
-                    placeholder="name@example.com" 
-                    required 
-                    className="h-12 border-slate-200 focus-visible:ring-blue-600 focus-visible:border-blue-600 bg-slate-50/50 rounded-xl text-base transition-all" 
-                  />
-                </div>
-                <div className="flex flex-col space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="password" className="text-slate-700 font-semibold">Password</Label>
-                    <Link href="#" className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">Forgot password?</Link>
-                  </div>
-                  <Input 
-                    id="password" 
-                    name="password" 
-                    type="password" 
-                    placeholder="••••••••" 
-                    required 
-                    className="h-12 border-slate-200 focus-visible:ring-blue-600 focus-visible:border-blue-600 bg-slate-50/50 rounded-xl text-base transition-all" 
-                  />
-                </div>
-                <SubmitButton />
-              </div>
-            </form>
+            <Suspense fallback={<div className="h-48 flex items-center justify-center text-slate-400 font-medium">Loading form...</div>}>
+              <LoginForm />
+            </Suspense>
           </CardContent>
         </Card>
       </div>

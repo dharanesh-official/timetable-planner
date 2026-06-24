@@ -149,7 +149,28 @@ export async function generateTimetable(semesterId: string) {
       }
     }
 
-    // 4. Greedy Allocation
+    // Helper to calculate gap penalty for a faculty on a specific day
+    const calculateGapPenalty = (d: number, pIdx: number, continuousHours: number, facultyId: string) => {
+      let minGap = 999;
+      for (let prev = pIdx - 1; prev >= 0; prev--) {
+        if (facultyOccupied[d][classPeriods[prev]]?.has(facultyId)) {
+          minGap = Math.min(minGap, pIdx - prev - 1);
+          break;
+        }
+      }
+      for (let next = pIdx + continuousHours; next < classPeriods.length; next++) {
+        if (facultyOccupied[d][classPeriods[next]]?.has(facultyId)) {
+          minGap = Math.min(minGap, next - (pIdx + continuousHours - 1) - 1);
+          break;
+        }
+      }
+      if (minGap === 0) return 100; // Consecutive class
+      if (minGap === 1) return 10;  // 1 free period
+      if (minGap === 2) return 1;   // 2 free periods
+      return 0;                     // >= 3 free periods
+    }
+
+    // 4. Penalty-based Allocation
     for (const assignment of sortedAssignments) {
       const subjectType = (assignment.subjects as any).type
       const continuous = assignment.continuous_hours || 1
@@ -159,6 +180,8 @@ export async function generateTimetable(semesterId: string) {
 
       while (remainingClasses >= continuous) {
         let placed = false
+        let bestSlot: { d: number, pIdx: number } | null = null;
+        let bestPenalty = Infinity;
 
         for (const d of workingDays) {
           if (subjectType === 'Theory' && daysAssigned.has(d)) continue
@@ -188,36 +211,55 @@ export async function generateTimetable(semesterId: string) {
             }
 
             if (isFree) {
-              for (let i = 0; i < continuous; i++) {
-                const p = classPeriods[pIdx + i]
-                semesterGrid[d][p] = assignment
-                facultyOccupied[d][p].add(assignment.faculty_id)
-                if (assignment.lab_id) labOccupied[d][p].add(assignment.lab_id)
-                newSlots.push({ day_of_week: d, period_number: p, subject_id: assignment.subject_id, faculty_id: assignment.faculty_id, lab_id: assignment.lab_id })
+              const penalty = calculateGapPenalty(d, pIdx, continuous, assignment.faculty_id);
+              if (penalty < bestPenalty) {
+                bestPenalty = penalty;
+                bestSlot = { d, pIdx };
               }
-              daysAssigned.add(d)
-              remainingClasses -= continuous
-              placed = true
-              break
             }
           }
-          if (placed) break
+        }
+
+        if (bestSlot) {
+          const { d, pIdx } = bestSlot;
+          for (let i = 0; i < continuous; i++) {
+            const p = classPeriods[pIdx + i]
+            semesterGrid[d][p] = assignment
+            facultyOccupied[d][p].add(assignment.faculty_id)
+            if (assignment.lab_id) labOccupied[d][p].add(assignment.lab_id)
+            newSlots.push({ day_of_week: d, period_number: p, subject_id: assignment.subject_id, faculty_id: assignment.faculty_id, lab_id: assignment.lab_id })
+          }
+          daysAssigned.add(d)
+          remainingClasses -= continuous
+          placed = true
         }
 
         if (!placed && subjectType === 'Theory') {
           // Relax daysAssigned constraint
+          let fallbackSlot: { d: number, pIdx: number } | null = null;
+          let fallbackPenalty = Infinity;
+
           for (const d of workingDays) {
-            for (const p of classPeriods) {
+            for (let pIdx = 0; pIdx < classPeriods.length; pIdx++) {
+              const p = classPeriods[pIdx];
               if (semesterGrid[d][p] === null && !facultyOccupied[d][p].has(assignment.faculty_id)) {
-                semesterGrid[d][p] = assignment
-                facultyOccupied[d][p].add(assignment.faculty_id)
-                newSlots.push({ day_of_week: d, period_number: p, subject_id: assignment.subject_id, faculty_id: assignment.faculty_id, lab_id: assignment.lab_id })
-                remainingClasses -= 1
-                placed = true
-                break
+                const penalty = calculateGapPenalty(d, pIdx, 1, assignment.faculty_id);
+                if (penalty < fallbackPenalty) {
+                  fallbackPenalty = penalty;
+                  fallbackSlot = { d, pIdx };
+                }
               }
             }
-            if (placed) break
+          }
+
+          if (fallbackSlot) {
+            const { d, pIdx } = fallbackSlot;
+            const p = classPeriods[pIdx];
+            semesterGrid[d][p] = assignment
+            facultyOccupied[d][p].add(assignment.faculty_id)
+            newSlots.push({ day_of_week: d, period_number: p, subject_id: assignment.subject_id, faculty_id: assignment.faculty_id, lab_id: assignment.lab_id })
+            remainingClasses -= 1
+            placed = true
           }
         }
 
@@ -229,20 +271,33 @@ export async function generateTimetable(semesterId: string) {
       
       while (remainingClasses > 0) {
         let placed = false
+        let bestRemSlot: { d: number, pIdx: number } | null = null;
+        let bestRemPenalty = Infinity;
+
         for (const d of workingDays) {
-          for (const p of classPeriods) {
+          for (let pIdx = 0; pIdx < classPeriods.length; pIdx++) {
+             const p = classPeriods[pIdx];
              if (semesterGrid[d][p] === null && !facultyOccupied[d][p].has(assignment.faculty_id) && !(assignment.lab_id && labOccupied[d][p].has(assignment.lab_id))) {
-                semesterGrid[d][p] = assignment
-                facultyOccupied[d][p].add(assignment.faculty_id)
-                if (assignment.lab_id) labOccupied[d][p].add(assignment.lab_id)
-                newSlots.push({ day_of_week: d, period_number: p, subject_id: assignment.subject_id, faculty_id: assignment.faculty_id, lab_id: assignment.lab_id })
-                remainingClasses -= 1
-                placed = true
-                break
-              }
+                const penalty = calculateGapPenalty(d, pIdx, 1, assignment.faculty_id);
+                if (penalty < bestRemPenalty) {
+                  bestRemPenalty = penalty;
+                  bestRemSlot = { d, pIdx };
+                }
+             }
           }
-          if (placed) break
         }
+
+        if (bestRemSlot) {
+          const { d, pIdx } = bestRemSlot;
+          const p = classPeriods[pIdx];
+          semesterGrid[d][p] = assignment
+          facultyOccupied[d][p].add(assignment.faculty_id)
+          if (assignment.lab_id) labOccupied[d][p].add(assignment.lab_id)
+          newSlots.push({ day_of_week: d, period_number: p, subject_id: assignment.subject_id, faculty_id: assignment.faculty_id, lab_id: assignment.lab_id })
+          remainingClasses -= 1
+          placed = true
+        }
+
         if (!placed) throw new Error(`Scheduling Conflict! Could not find a free slot for remaining hours of: ${(assignment.subjects as any).name}.`)
       }
     }
