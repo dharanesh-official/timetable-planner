@@ -35,5 +35,6 @@ export async function updateFacultyProfile(id: string, updates: { weekly_hour_li
 
   revalidatePath('/faculty')
   revalidatePath('/manage-users')
+  revalidatePath('/faculty-timetable')
   return { success: true }
 }

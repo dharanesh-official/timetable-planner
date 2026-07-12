@@ -68,6 +68,8 @@ export async function createUser(formData: FormData) {
   }
 
   revalidatePath('/manage-users')
+  revalidatePath('/faculty')
+  revalidatePath('/faculty-timetable')
   return { success: true }
 }
 
@@ -96,5 +98,7 @@ export async function deleteUser(userId: string, targetRole: string) {
   }
 
   revalidatePath('/manage-users')
+  revalidatePath('/faculty')
+  revalidatePath('/faculty-timetable')
   return { success: true }
 }
