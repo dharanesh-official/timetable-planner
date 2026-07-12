@@ -20,12 +20,12 @@ interface UserProfile {
 export default function UserTableClient({ initialUsers }: { initialUsers: UserProfile[] }) {
   const [users, setUsers] = useState<UserProfile[]>(initialUsers)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editLimit, setEditLimit] = useState<number>(20)
+  const [editLimit, setEditLimit] = useState<string>('20')
   const [saving, setSaving] = useState(false)
 
   const startEditing = (user: UserProfile) => {
     setEditingId(user.id)
-    setEditLimit(user.weekly_hour_limit ?? 20)
+    setEditLimit((user.weekly_hour_limit ?? 20).toString())
   }
 
   const cancelEditing = () => {
@@ -33,7 +33,8 @@ export default function UserTableClient({ initialUsers }: { initialUsers: UserPr
   }
 
   const handleSave = async (id: string) => {
-    if (editLimit < 1) {
+    const parsedLimit = parseInt(editLimit, 10)
+    if (isNaN(parsedLimit) || parsedLimit < 1) {
       alert('Weekly Limit must be at least 1 hour.')
       return
     }
@@ -41,7 +42,7 @@ export default function UserTableClient({ initialUsers }: { initialUsers: UserPr
     setSaving(true)
     try {
       const res = await updateFacultyProfile(id, {
-        weekly_hour_limit: editLimit
+        weekly_hour_limit: parsedLimit
       })
 
       if (res?.error) {
@@ -52,7 +53,7 @@ export default function UserTableClient({ initialUsers }: { initialUsers: UserPr
         if (u.id === id) {
           return {
             ...u,
-            weekly_hour_limit: editLimit
+            weekly_hour_limit: parsedLimit
           }
         }
         return u
@@ -101,7 +102,7 @@ export default function UserTableClient({ initialUsers }: { initialUsers: UserPr
                           type="number"
                           min="1"
                           value={editLimit}
-                          onChange={(e) => setEditLimit(parseInt(e.target.value) || 0)}
+                          onChange={(e) => setEditLimit(e.target.value)}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               handleSave(u.id)

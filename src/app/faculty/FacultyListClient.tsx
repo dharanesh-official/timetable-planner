@@ -19,13 +19,13 @@ interface FacultyMember {
 export default function FacultyListClient({ initialFacultyMembers }: { initialFacultyMembers: FacultyMember[] }) {
   const [facultyMembers, setFacultyMembers] = useState<FacultyMember[]>(initialFacultyMembers)
   const [editingId, setEditingId] = useState<string | null>(null)
-  const [editLimit, setEditLimit] = useState<number>(20)
+  const [editLimit, setEditLimit] = useState<string>('20')
   const [editDept, setEditDept] = useState<string>('')
   const [saving, setSaving] = useState(false)
 
   const startEditing = (faculty: FacultyMember) => {
     setEditingId(faculty.id)
-    setEditLimit(faculty.weekly_hour_limit ?? 20)
+    setEditLimit((faculty.weekly_hour_limit ?? 20).toString())
     setEditDept(faculty.department ?? '')
   }
 
@@ -34,7 +34,8 @@ export default function FacultyListClient({ initialFacultyMembers }: { initialFa
   }
 
   const handleSave = async (id: string) => {
-    if (editLimit < 1) {
+    const parsedLimit = parseInt(editLimit, 10)
+    if (isNaN(parsedLimit) || parsedLimit < 1) {
       alert('Weekly Hour Limit must be at least 1 hour.')
       return
     }
@@ -42,7 +43,7 @@ export default function FacultyListClient({ initialFacultyMembers }: { initialFa
     setSaving(true)
     try {
       const res = await updateFacultyProfile(id, {
-        weekly_hour_limit: editLimit,
+        weekly_hour_limit: parsedLimit,
         department: editDept.trim() || undefined
       })
 
@@ -54,7 +55,7 @@ export default function FacultyListClient({ initialFacultyMembers }: { initialFa
         if (f.id === id) {
           return {
             ...f,
-            weekly_hour_limit: editLimit,
+            weekly_hour_limit: parsedLimit,
             department: editDept.trim() || null
           }
         }
@@ -119,9 +120,17 @@ export default function FacultyListClient({ initialFacultyMembers }: { initialFa
                         type="number"
                         min="1"
                         value={editLimit}
-                        onChange={(e) => setEditLimit(parseInt(e.target.value) || 0)}
+                        onChange={(e) => setEditLimit(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            handleSave(faculty.id)
+                          } else if (e.key === 'Escape') {
+                            cancelEditing()
+                          }
+                        }}
                         className="h-9 border-slate-200 focus-visible:ring-blue-600 focus-visible:border-blue-600 bg-white rounded-lg shadow-sm text-sm"
                         disabled={saving}
+                        autoFocus
                       />
                       <span className="text-xs text-slate-400 font-semibold">hrs</span>
                     </div>
