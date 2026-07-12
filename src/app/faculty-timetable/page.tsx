@@ -10,7 +10,7 @@ export default async function FacultyTimetablePage({ searchParams }: { searchPar
   if (!user) redirect('/login')
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-  if (!profile || !['timetable_planner', 'faculty', 'curriculum_designer'].includes(profile.role)) {
+  if (!profile || (profile.role !== 'timetable_planner' && profile.role !== 'faculty')) {
     redirect('/')
   }
 
@@ -21,16 +21,12 @@ export default async function FacultyTimetablePage({ searchParams }: { searchPar
   // Fetch all faculty for dropdown if timetable_planner
   let facultyMembers: any[] = []
   if (profile.role === 'timetable_planner') {
-    const { data } = await supabase
-      .from('profiles')
-      .select('id, full_name')
-      .in('role', ['faculty', 'curriculum_designer'])
-      .order('full_name')
+    const { data } = await supabase.from('profiles').select('id, full_name').eq('role', 'faculty').order('full_name')
     facultyMembers = data || []
   }
 
   let targetFacultyId = null
-  if (profile.role === 'faculty' || profile.role === 'curriculum_designer') targetFacultyId = user.id
+  if (profile.role === 'faculty') targetFacultyId = user.id
   else if (params.faculty_id) targetFacultyId = params.faculty_id
 
   let slots: any[] = []

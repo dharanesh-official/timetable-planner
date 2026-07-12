@@ -42,7 +42,7 @@ export default function CreateUserForm({ currentUserRole }: { currentUserRole: s
   }
 
   return (
-    <form onSubmit={handleSubmit} className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${['faculty', 'curriculum_designer'].includes(selectedRole) ? 'xl:grid-cols-6' : 'xl:grid-cols-5'} gap-5 items-end`}>
+    <form onSubmit={handleSubmit} className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 ${selectedRole === 'faculty' ? 'xl:grid-cols-6' : 'xl:grid-cols-5'} gap-5 items-end`}>
       <div className="flex flex-col space-y-2 lg:col-span-1">
         <Label htmlFor="full_name" className="text-slate-700 font-semibold">Full Name</Label>
         <Input id="full_name" name="full_name" required placeholder="John Doe" className="border-slate-200 focus-visible:ring-blue-600 bg-slate-50/50" />
@@ -74,7 +74,7 @@ export default function CreateUserForm({ currentUserRole }: { currentUserRole: s
           </SelectContent>
         </Select>
       </div>
-      {['faculty', 'curriculum_designer'].includes(selectedRole) && (
+      {selectedRole === 'faculty' && (
         <div className="flex flex-col space-y-2 lg:col-span-1 animate-in fade-in slide-in-from-top-2 duration-200">
           <Label htmlFor="weekly_hour_limit" className="text-slate-700 font-semibold">Weekly Limit (hrs)</Label>
           <Input 

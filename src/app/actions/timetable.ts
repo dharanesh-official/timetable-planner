@@ -92,7 +92,7 @@ export async function generateTimetable(semesterId: string) {
     const { data: facultyProfiles, error: facultyErr } = await supabase
       .from('profiles')
       .select('id, full_name, weekly_hour_limit')
-      .in('role', ['faculty', 'curriculum_designer'])
+      .eq('role', 'faculty')
 
     if (facultyErr) throw new Error('Failed to fetch faculty details: ' + facultyErr.message)
 

@@ -12,12 +12,8 @@ export default async function FacultyPage() {
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
   if (profile?.role !== 'timetable_planner') redirect('/')
 
-  // View all faculty members (including curriculum designers/planners)
-  const { data: facultyMembers } = await supabase
-    .from('profiles')
-    .select('*')
-    .in('role', ['faculty', 'curriculum_designer'])
-    .order('created_at', { ascending: false })
+  // View all faculty members
+  const { data: facultyMembers } = await supabase.from('profiles').select('*').eq('role', 'faculty').order('created_at', { ascending: false })
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-6">
