@@ -95,7 +95,7 @@ export default function UserTableClient({ initialUsers }: { initialUsers: UserPr
                 
                 {/* Weekly Limit Column */}
                 <TableCell className="text-slate-600 font-medium">
-                  {u.role === 'faculty' ? (
+                  {u.role === 'faculty' || u.role === 'curriculum_designer' ? (
                     isEditing ? (
                       <div className="flex items-center gap-1.5 animate-in fade-in zoom-in-95 duration-150">
                         <Input

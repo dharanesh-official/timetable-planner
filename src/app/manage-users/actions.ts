@@ -58,7 +58,7 @@ export async function createUser(formData: FormData) {
       email: newUser.user.email,
       full_name,
       role: targetRole,
-      weekly_hour_limit: targetRole === 'faculty' ? weekly_hour_limit : null
+      weekly_hour_limit: ['faculty', 'curriculum_designer'].includes(targetRole) ? weekly_hour_limit : null
     })
 
     if (profileError) {

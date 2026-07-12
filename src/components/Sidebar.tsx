@@ -100,7 +100,7 @@ export function Sidebar({ role }: { role?: string }) {
           </>
         )}
 
-        {role === 'faculty' && (
+        {(role === 'faculty' || role === 'curriculum_designer') && (
           <>
             <div className={`mt-4 mb-2 px-4 text-xs font-bold text-slate-900 uppercase tracking-wider transition-opacity duration-300 ${isHovered ? 'opacity-100' : 'opacity-0'}`}>
               My Portal

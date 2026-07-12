@@ -41,7 +41,7 @@ export default function FacultyTimetableClient({ role, facultyMembers, workingDa
   return (
     <div className="max-w-[1400px] mx-auto py-10 px-6 print:p-0 print:m-0 print:max-w-full">
       <div className="mb-8 print:hidden">
-        <h1 className="text-3xl font-bold text-slate-900">{role === 'faculty' ? 'My Timetable' : 'Faculty Timetable'}</h1>
+        <h1 className="text-3xl font-bold text-slate-900">{['faculty', 'curriculum_designer'].includes(role) ? 'My Timetable' : 'Faculty Timetable'}</h1>
         <p className="text-slate-600 mt-1">View the conflict-free personal schedule for faculty members.</p>
       </div>
 
@@ -68,7 +68,7 @@ export default function FacultyTimetableClient({ role, facultyMembers, workingDa
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500 print:shadow-none print:border-none print:m-0 print:p-0">
           <div className="p-6 border-b border-slate-200 bg-slate-50 flex justify-between items-center print:hidden">
             <h2 className="text-xl font-bold text-slate-900">
-              {role === 'faculty' ? 'My Weekly Schedule' : `${facultyName}'s Schedule`}
+              {['faculty', 'curriculum_designer'].includes(role) ? 'My Weekly Schedule' : `${facultyName}'s Schedule`}
             </h2>
             <div className="flex gap-4">
               <Button 
@@ -101,7 +101,7 @@ export default function FacultyTimetableClient({ role, facultyMembers, workingDa
           <div className="hidden print:block mb-6 text-center">
             <h1 className="text-2xl font-bold text-slate-900">Personal Timetable</h1>
             <p className="text-slate-600 mt-1">
-              {role === 'faculty' ? 'Faculty Schedule' : facultyName}
+              {['faculty', 'curriculum_designer'].includes(role) ? 'Faculty Schedule' : facultyName}
             </p>
           </div>
 
