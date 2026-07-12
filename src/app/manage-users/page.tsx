@@ -2,13 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { createUser } from './actions'
 import CreateUserForm from './CreateUserForm'
-import DeleteUserButton from './DeleteUserButton'
+import UserTableClient from './UserTableClient'
 
 export default async function ManageUsersPage() {
   const supabase = await createClient()
@@ -52,47 +47,7 @@ export default async function ManageUsersPage() {
         <CreateUserForm currentUserRole={profile.role} />
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50 border-b border-slate-200">
-              <TableHead className="font-semibold text-slate-700">Name</TableHead>
-              <TableHead className="font-semibold text-slate-700">Email</TableHead>
-              <TableHead className="font-semibold text-slate-700">Role</TableHead>
-              <TableHead className="font-semibold text-slate-700">Weekly Limit</TableHead>
-              <TableHead className="font-semibold text-slate-700">Created At</TableHead>
-              <TableHead className="text-right font-semibold text-slate-700">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {users?.map((u) => (
-              <TableRow key={u.id} className="hover:bg-slate-50/50">
-                <TableCell className="font-medium text-slate-900">{u.full_name}</TableCell>
-                <TableCell className="text-slate-600">{u.email}</TableCell>
-                <TableCell>
-                  <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-md text-xs font-bold tracking-wide uppercase border border-blue-100">
-                    {u.role.replace('_', ' ')}
-                  </span>
-                </TableCell>
-                <TableCell className="text-slate-600 font-medium">
-                  {u.role === 'faculty' ? `${u.weekly_hour_limit ?? 20} hrs` : '-'}
-                </TableCell>
-                <TableCell className="text-slate-600">{new Date(u.created_at).toLocaleDateString()}</TableCell>
-                <TableCell className="text-right">
-                  <DeleteUserButton userId={u.id} role={u.role} />
-                </TableCell>
-              </TableRow>
-            ))}
-            {(!users || users.length === 0) && (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-12 text-slate-500 bg-slate-50/30">
-                  No users found matching your permission scope.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <UserTableClient initialUsers={users || []} />
     </div>
   )
 }

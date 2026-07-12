@@ -15,12 +15,17 @@ export async function updateFacultyProfile(id: string, updates: { weekly_hour_li
     return { error: 'Unauthorized. Only timetable planners can manage faculty details.' }
   }
 
+  const updatePayload: any = {
+    weekly_hour_limit: updates.weekly_hour_limit
+  }
+
+  if (updates.department !== undefined) {
+    updatePayload.department = updates.department || null
+  }
+
   const { error } = await supabase
     .from('profiles')
-    .update({
-      weekly_hour_limit: updates.weekly_hour_limit,
-      department: updates.department || null
-    })
+    .update(updatePayload)
     .eq('id', id)
 
   if (error) {
@@ -29,5 +34,6 @@ export async function updateFacultyProfile(id: string, updates: { weekly_hour_li
   }
 
   revalidatePath('/faculty')
+  revalidatePath('/manage-users')
   return { success: true }
 }
